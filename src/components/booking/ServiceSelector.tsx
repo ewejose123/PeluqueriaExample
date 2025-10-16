@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, Clock, User, Euro, CheckCircle, X, AlertCircle } from 'lucide-react'
+import { Calendar, Clock, Euro, CheckCircle, X, AlertCircle } from 'lucide-react'
 import StickyServiceBanner from './StickyServiceBanner'
 
 interface Service {

@@ -2,14 +2,15 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, Clock, User, ArrowLeft, CheckCircle, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react'
-import { format, addDays, startOfDay, isToday, isTomorrow, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from 'date-fns'
+import { Calendar, Clock, ArrowLeft, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react'
+import { format, addDays, isToday, isTomorrow, startOfMonth, endOfMonth, addMonths, subMonths } from 'date-fns'
 import { es } from 'date-fns/locale'
 import CalendarPopup from './CalendarPopup'
 
 interface TimeSlot {
     time: string
     datetime: string
+    endTime: string
     employeeId: string
     employeeName: string
     serviceId: string
@@ -44,7 +45,11 @@ export default function TimeSlotSelector({
     const [error, setError] = useState<string | null>(null)
     const [showCalendar, setShowCalendar] = useState(false)
     const [currentMonth, setCurrentMonth] = useState(new Date())
-    const [bookingSettings, setBookingSettings] = useState<any>(null)
+    const [bookingSettings, setBookingSettings] = useState<{
+        maxAdvanceDays: number
+        slotDuration: number
+        bufferTime: number
+    } | null>(null)
     const calendarRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -147,12 +152,6 @@ export default function TimeSlotSelector({
         }
 
         return dates.slice(0, 14) // Limit to 14 days
-    }
-
-    const formatDateLabel = (date: Date) => {
-        if (isToday(date)) return 'Hoy'
-        if (isTomorrow(date)) return 'Mañana'
-        return format(date, 'dd MMM', { locale: es })
     }
 
     const groupSlotsByTime = (slots: TimeSlot[]) => {

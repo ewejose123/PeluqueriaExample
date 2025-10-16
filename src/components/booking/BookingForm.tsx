@@ -6,6 +6,16 @@ import { ArrowLeft, User, Mail, Phone, Calendar, Clock, CheckCircle } from 'luci
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
+interface Service {
+    id: string
+    name: string
+    description: string
+    duration: number
+    price: number
+    imageUrl: string | null
+    category: string | null
+}
+
 interface TimeSlot {
     time: string
     datetime: string
@@ -22,7 +32,15 @@ interface BookingFormProps {
     slot: TimeSlot
     businessSlug?: string
     onBack: () => void
-    onSuccess: (appointment: any) => void
+    onSuccess: (appointment: {
+        id: string
+        startTime: string
+        endTime: string
+        clientName: string
+        clientEmail: string
+        service: Service
+        employee: { name: string }
+    }) => void
 }
 
 export default function BookingForm({ slot, businessSlug = 'sample-business', onBack, onSuccess }: BookingFormProps) {

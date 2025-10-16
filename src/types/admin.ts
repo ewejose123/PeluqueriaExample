@@ -55,5 +55,5 @@ export type CalendarView = 'month' | 'week'
 export interface AdminTabConfig {
     id: AdminTab
     label: string
-    icon: any
+    icon: React.ComponentType<{ className?: string }>
 }

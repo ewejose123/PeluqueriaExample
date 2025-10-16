@@ -28,6 +28,7 @@ interface Service {
 interface TimeSlot {
     time: string
     datetime: string
+    endTime: string
     employeeId: string
     employeeName: string
     serviceId: string
@@ -41,7 +42,15 @@ export default function BookingPage() {
     const [selectedServices, setSelectedServices] = useState<Service[]>([]) // Changed to array
     const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null) // null = any available
     const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null)
-    const [appointment, setAppointment] = useState<any>(null)
+    const [appointment, setAppointment] = useState<{
+        id: string
+        startTime: string
+        endTime: string
+        clientName: string
+        clientEmail: string
+        service: Service
+        employee: { name: string }
+    } | null>(null)
 
     const handleServicesSelect = (services: Service[]) => {
         setSelectedServices(services)
@@ -58,7 +67,15 @@ export default function BookingPage() {
         setCurrentStep('form')
     }
 
-    const handleBookingSuccess = (newAppointment: any) => {
+    const handleBookingSuccess = (newAppointment: {
+        id: string
+        startTime: string
+        endTime: string
+        clientName: string
+        clientEmail: string
+        service: Service
+        employee: { name: string }
+    }) => {
         setAppointment(newAppointment)
         setCurrentStep('success')
     }

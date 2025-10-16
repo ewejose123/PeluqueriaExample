@@ -1,5 +1,5 @@
 // Utility functions for admin panel
-import { format, addDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
+import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { Employee, Appointment } from '@/types/admin'
 
 export const generateCalendarDays = (currentDate: Date) => {

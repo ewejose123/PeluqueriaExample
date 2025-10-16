@@ -29,6 +29,16 @@ interface EmployeeSelectorProps {
     onBack: () => void
 }
 
+interface ServiceWithEmployees {
+    id: string
+    name: string
+    employees: Employee[]
+}
+
+interface ApiResponse {
+    services: ServiceWithEmployees[]
+}
+
 export default function EmployeeSelector({
     services,
     businessSlug = 'sample-business',
@@ -47,19 +57,19 @@ export default function EmployeeSelector({
         try {
             setLoading(true)
             const response = await fetch(`/api/services?businessSlug=${businessSlug}`)
-            const data = await response.json()
+            const data: ApiResponse = await response.json()
 
             if (!response.ok) {
-                throw new Error(data.error || 'Failed to fetch employees')
+                throw new Error('Failed to fetch employees')
             }
 
             // Get employees who can perform ALL selected services
             const serviceIds = services.map(s => s.id)
             const allEmployees = new Set<string>()
 
-            data.services.forEach((service: any) => {
+            data.services.forEach((service: ServiceWithEmployees) => {
                 if (serviceIds.includes(service.id) && service.employees) {
-                    service.employees.forEach((emp: any) => {
+                    service.employees.forEach((emp: Employee) => {
                         allEmployees.add(emp.id)
                     })
                 }
@@ -67,12 +77,12 @@ export default function EmployeeSelector({
 
             // Filter employees who can perform all services
             const availableEmployees = data.services
-                .filter((service: any) => serviceIds.includes(service.id))
-                .flatMap((service: any) => service.employees || [])
-                .filter((emp: any, index: number, arr: any[]) =>
+                .filter((service: ServiceWithEmployees) => serviceIds.includes(service.id))
+                .flatMap((service: ServiceWithEmployees) => service.employees || [])
+                .filter((emp: Employee, index: number, arr: Employee[]) =>
                     arr.filter(e => e.id === emp.id).length === serviceIds.length
                 )
-                .reduce((acc: any[], emp: any) => {
+                .reduce((acc: Employee[], emp: Employee) => {
                     if (!acc.find(e => e.id === emp.id)) {
                         acc.push(emp)
                     }

@@ -72,7 +72,17 @@ export async function GET(request: NextRequest) {
     const dayOfWeek = selectedDate.getDay()
 
     // Generate available time slots for each employee
-    const availableSlots = []
+    const availableSlots: Array<{
+        time: string
+        datetime: string
+        endTime: string
+        employeeId: string
+        employeeName: string
+        serviceId: string
+        serviceName: string
+        duration: number
+        price: number | null
+    }> = []
 
     for (const employee of service.employees) {
       // Find working hours for this day
