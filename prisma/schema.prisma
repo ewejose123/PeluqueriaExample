@@ -1,4 +1,4 @@
-// This is your Prisma schema file.
+// General Appointment Booking System Schema
 // Learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
@@ -7,23 +7,55 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // This will be your Supabase connection string
+  url      = env("DATABASE_URL")
 }
 
 model Business {
   id              String   @id @default(cuid())
   name            String
+  slug            String   @unique // For multi-business URLs
   address         String?
   phone           String?
   email           String?
-  // Relation to employees, services, etc.
+  website         String?
+  description     String?
+  logoUrl         String?
+  primaryColor    String   @default("#F59E0B")
+  secondaryColor  String   @default("#1F2937")
+  timezone        String   @default("Europe/Madrid")
+  currency        String   @default("EUR")
+  isActive        Boolean  @default(true)
+  // Relations
   employees       Employee[]
   services        Service[]
   timeBlocks      TimeBlock[]
-  // Auth relationship
-  userId          String   @unique // Links to Supabase Auth user
+  appointments    Appointment[]
+  bookingSettings BookingSettings?
+  // Auth
+  userId          String   @unique
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model BookingSettings {
+  id                String @id @default(cuid())
+  businessId        String @unique
+  business          Business @relation(fields: [businessId], references: [id])
+  advanceBookingDays Int    @default(30)
+  minBookingHours   Int     @default(2)
+  maxBookingHours   Int     @default(24)
+  slotDuration      Int     @default(30) // minutes
+  bufferTime        Int     @default(15) // minutes between appointments
+  allowSameDay      Boolean @default(true)
+  requireConfirmation Boolean @default(false)
+  cancellationHours Int     @default(24)
+  maxAdvanceDays    Int     @default(90) // Maximum days in advance bookings can be made
+  // Working days (0=Sunday, 1=Monday, etc.)
+  workingDays       Json    @default("{\"0\":false,\"1\":true,\"2\":true,\"3\":true,\"4\":true,\"5\":true,\"6\":true}")
+  // Break times
+  breakTimes        Json?   // [{"start":"12:00","end":"13:00"}]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model Employee {
@@ -31,7 +63,9 @@ model Employee {
   name      String
   email     String?
   phone     String?
-  // Many-to-Many relationship with Service
+  avatarUrl String?
+  isActive  Boolean  @default(true)
+  // Many-to-Many relationship with Service (employees can perform multiple services)
   services  Service[] @relation("EmployeeServices")
   business  Business @relation(fields: [businessId], references: [id])
   businessId String
@@ -51,7 +85,9 @@ model Service {
   duration    Int // Duration in minutes
   price       Float?
   imageUrl    String?
-  // Many-to-Many relationship with Employee
+  category    String?   // Optional categorization
+  isActive    Boolean   @default(true)
+  // Many-to-Many relationship with Employee (services can be performed by multiple employees)
   employees   Employee[] @relation("EmployeeServices")
   business    Business  @relation(fields: [businessId], references: [id])
   businessId  String
@@ -68,12 +104,14 @@ model Appointment {
   clientEmail String
   clientPhone String?
   notes      String?
-  status     String   @default("confirmed") // confirmed, cancelled, completed
-
+  status     String   @default("confirmed") // confirmed, cancelled, completed, no-show
+  // Relations
   employee   Employee @relation(fields: [employeeId], references: [id])
   employeeId String
   service    Service  @relation(fields: [serviceId], references: [id])
   serviceId  String
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
@@ -86,8 +124,11 @@ model WorkingHours {
     dayOfWeek Int
     startTime String // e.g., "09:00"
     endTime   String   // e.g., "17:00"
+    isActive  Boolean  @default(true)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    
+    @@unique([employeeId, dayOfWeek])
 }
 
 model TimeBlock {
@@ -95,6 +136,7 @@ model TimeBlock {
     startTime   DateTime // Start of the blocked period
     endTime     DateTime // End of the blocked period
     reason      String?
+    isRecurring Boolean  @default(false)
     // Optional: link to a specific employee if it's a personal block
     employee    Employee? @relation(fields: [employeeId], references: [id])
     employeeId  String?

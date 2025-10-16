@@ -69,8 +69,8 @@ export default function TestimonialsSection() {
                     transition={{ duration: 0.6 }}
                     className="text-center mb-12"
                 >
-                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Opiniones de Clientes</h2>
-                    <p className="text-gray-600 text-lg">5 estrellas en cada visita. Calidad que se nota.</p>
+                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Que opinan nuestros clientes</h2>
+                    {/* <p className="text-gray-600 text-lg">4.8 estrellas en cada visita. Calidad que se nota.</p> */}
                 </motion.div>
 
                 <InfiniteRow direction={1} speed={40} />

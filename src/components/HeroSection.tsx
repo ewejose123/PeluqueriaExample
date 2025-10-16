@@ -24,10 +24,10 @@ export default function HeroSection() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 md:mb-6 tracking-tight">
                         Barbería <span className="text-amber-400">Elite</span>
                     </h1>
-                    <p className="text-xl md:text-2xl mb-8 text-gray-200 max-w-2xl mx-auto">
+                    <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 text-gray-200 max-w-2xl mx-auto px-2">
                         Donde la tradición se encuentra con el estilo moderno.
                         Experimenta el mejor servicio de barbería en Totana.
                     </p>
@@ -37,20 +37,20 @@ export default function HeroSection() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
-                    className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12"
+                    className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 md:mb-12 px-2"
                 >
                     <a
                         href="/book"
-                        className="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-8 py-4 rounded-full transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
+                        className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 text-sm sm:text-base"
                     >
-                        <Calendar className="w-5 h-5" />
+                        <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                         Reservar Cita
                     </a>
                     <a
                         href="#contact"
-                        className="border-2 border-white text-white hover:bg-white hover:text-black font-semibold px-8 py-4 rounded-full transition-all duration-300 flex items-center gap-2"
+                        className="w-full sm:w-auto border-2 border-white text-white hover:bg-white hover:text-black font-semibold px-6 sm:px-8 py-3 sm:py-4 rounded-full transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base"
                     >
-                        <Phone className="w-5 h-5" />
+                        <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
                         Contactar
                     </a>
                 </motion.div>
@@ -60,33 +60,68 @@ export default function HeroSection() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.4 }}
-                    className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto"
+                    className="max-w-4xl mx-auto px-2"
                 >
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                        <MapPin className="w-8 h-8 mx-auto mb-3 text-amber-400" />
-                        <h3 className="font-semibold mb-2">Ubicación</h3>
-                        <p className="text-sm text-gray-300">
-                            Calle Sta. Eulalia, 8A<br />
-                            30850 Totana, Murcia
-                        </p>
+                    {/* Mobile Layout: 2 cards top row, 1 card centered bottom */}
+                    <div className="block sm:hidden">
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                                <MapPin className="w-5 h-5 mx-auto mb-2 text-amber-400" />
+                                <h3 className="font-semibold mb-1 text-xs text-center">Ubicación</h3>
+                                <p className="text-xs text-gray-300 text-center">
+                                    Calle Sta. Eulalia, 8A<br />
+                                    30850 Totana
+                                </p>
+                            </div>
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+                                <Calendar className="w-5 h-5 mx-auto mb-2 text-amber-400" />
+                                <h3 className="font-semibold mb-1 text-xs text-center">Horarios</h3>
+                                <p className="text-xs text-gray-300 text-center">
+                                    Lun - Vie: 9:00 - 19:00<br />
+                                    Sáb: 9:00 - 17:00
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex justify-center">
+                            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20 w-1/2">
+                                <Phone className="w-5 h-5 mx-auto mb-2 text-amber-400" />
+                                <h3 className="font-semibold mb-1 text-xs text-center">Contacto</h3>
+                                <p className="text-xs text-gray-300 text-center">
+                                    +34 968 123 456<br />
+                                    info@barberiaelite.com
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                        <Calendar className="w-8 h-8 mx-auto mb-3 text-amber-400" />
-                        <h3 className="font-semibold mb-2">Horarios</h3>
-                        <p className="text-sm text-gray-300">
-                            Lun - Vie: 9:00 - 19:00<br />
-                            Sáb: 9:00 - 17:00
-                        </p>
-                    </div>
+                    {/* Desktop Layout: 3 cards in a row */}
+                    <div className="hidden sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
+                        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/20">
+                            <MapPin className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 text-amber-400" />
+                            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Ubicación</h3>
+                            <p className="text-xs sm:text-sm text-gray-300">
+                                Calle Sta. Eulalia, 8A<br />
+                                30850 Totana, Murcia
+                            </p>
+                        </div>
 
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                        <Phone className="w-8 h-8 mx-auto mb-3 text-amber-400" />
-                        <h3 className="font-semibold mb-2">Contacto</h3>
-                        <p className="text-sm text-gray-300">
-                            +34 968 123 456<br />
-                            info@barberiaelite.com
-                        </p>
+                        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/20">
+                            <Calendar className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 text-amber-400" />
+                            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Horarios</h3>
+                            <p className="text-xs sm:text-sm text-gray-300">
+                                Lun - Vie: 9:00 - 19:00<br />
+                                Sáb: 9:00 - 17:00
+                            </p>
+                        </div>
+
+                        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 sm:p-6 border border-white/20">
+                            <Phone className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 sm:mb-3 text-amber-400" />
+                            <h3 className="font-semibold mb-1 sm:mb-2 text-sm sm:text-base">Contacto</h3>
+                            <p className="text-xs sm:text-sm text-gray-300">
+                                +34 968 123 456<br />
+                                info@barberiaelite.com
+                            </p>
+                        </div>
                     </div>
                 </motion.div>
             </div>

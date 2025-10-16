@@ -5,7 +5,7 @@ import { Star } from 'lucide-react'
 
 export default function RatingBanner() {
     return (
-        <section className="py-8 bg-gradient-to-r from-amber-500 to-amber-600">
+        <section className="py-4 bg-gradient-to-r from-amber-500 to-amber-600">
             <div className="max-w-7xl mx-auto px-4">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -21,7 +21,7 @@ export default function RatingBanner() {
                             ))}
                         </div>
                         <span className="text-lg md:text-xl font-semibold">
-                            Promedio de 5 Estrellas
+                            Promedio de 4.8 Estrellas
                         </span>
                         <span className="text-amber-100 text-sm md:text-base">
                             • Más de 30 reseñas verificadas

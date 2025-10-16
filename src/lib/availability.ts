@@ -52,13 +52,21 @@ export function generateTimeSlots(
   endTime: string,
   serviceDuration: number,
   appointments: Array<{ startTime: Date; endTime: Date }>,
-  timeBlocks: Array<{ startTime: Date; endTime: Date }>
+  timeBlocks: Array<{ startTime: Date; endTime: Date }>,
+  selectedDate: Date
 ): Date[] {
   const slots: Date[] = []
-  const start = parseISO(`2024-01-01T${startTime}:00`)
-  const end = parseISO(`2024-01-01T${endTime}:00`)
   
-  let current = start
+  // Create proper date objects using the selected date
+  const start = new Date(selectedDate)
+  const [startHour, startMinute] = startTime.split(':').map(Number)
+  start.setHours(startHour, startMinute, 0, 0)
+  
+  const end = new Date(selectedDate)
+  const [endHour, endMinute] = endTime.split(':').map(Number)
+  end.setHours(endHour, endMinute, 0, 0)
+  
+  let current = new Date(start)
   
   while (addMinutes(current, serviceDuration).getTime() <= end.getTime()) {
     const slotEnd = addMinutes(current, serviceDuration)

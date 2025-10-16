@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 export default function Navigation() {
     const [isOpen, setIsOpen] = useState(false)
     const [scrolled, setScrolled] = useState(false)
+    const pathname = usePathname()
 
     useEffect(() => {
         const handleScroll = () => {
@@ -17,9 +19,9 @@ export default function Navigation() {
     }, [])
 
     const navItems = [
-        { name: 'Inicio', href: '#home' },
-        { name: 'Servicios', href: '#services' },
-        { name: 'Contacto', href: '#contact' },
+        { name: 'Inicio', href: pathname === '/book' ? '/' : '#home' },
+        { name: 'Servicios', href: pathname === '/book' ? '/#services' : '#services' },
+        { name: 'Contacto', href: pathname === '/book' ? '/#contact' : '#contact' },
         { name: 'Reservar', href: '/book' }
     ]
 
@@ -29,8 +31,8 @@ export default function Navigation() {
             animate={{ y: 0 }}
             transition={{ duration: 0.6 }}
             className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
-                    ? 'bg-white/95 backdrop-blur-sm shadow-lg'
-                    : 'bg-transparent'
+                ? 'bg-white/95 backdrop-blur-sm shadow-lg'
+                : 'bg-transparent'
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4">
@@ -40,7 +42,7 @@ export default function Navigation() {
                         whileHover={{ scale: 1.05 }}
                         className="flex items-center gap-2"
                     >
-                        <a href="#home" className="text-2xl font-bold">
+                        <a href={pathname === '/book' ? '/' : '#home'} className="text-2xl font-bold">
                             <span className={scrolled ? 'text-gray-900' : 'text-white'}>
                                 Barbería <span className="text-amber-500">Elite</span>
                             </span>
@@ -88,8 +90,8 @@ export default function Navigation() {
                                 href={item.href}
                                 onClick={() => setIsOpen(false)}
                                 className={`block px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${scrolled
-                                        ? 'text-gray-700 hover:bg-gray-100'
-                                        : 'text-white hover:bg-white/10'
+                                    ? 'text-gray-700 hover:bg-gray-100'
+                                    : 'text-white hover:bg-white/10'
                                     }`}
                             >
                                 {item.name}
