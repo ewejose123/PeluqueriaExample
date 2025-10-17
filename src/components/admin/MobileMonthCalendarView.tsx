@@ -1,11 +1,11 @@
-// Month Calendar View Component
+// Mobile-Optimized Month Calendar View Component
 import { addDays, format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Appointment, Employee } from '@/types/admin'
-import { handleDeleteAppointment } from '@/lib/adminUtils'
+import { getEmployeeColor } from '@/lib/adminUtils'
 
-interface MonthCalendarViewProps {
+interface MobileMonthCalendarViewProps {
     currentDate: Date
     setCurrentDate: (date: Date) => void
     appointments: Appointment[]
@@ -13,58 +13,64 @@ interface MonthCalendarViewProps {
     getAppointmentsForDate: (date: Date, employeeId?: string) => Appointment[]
     getEmployeeColor: (employeeId: string) => string
     employees: Employee[]
+    onAppointmentClick: (appointment: Appointment) => void
     onDayClick?: (date: Date) => void
-    onAppointmentClick?: (appointment: Appointment) => void
 }
 
-export default function MonthCalendarView({
+export default function MobileMonthCalendarView({
     currentDate,
     setCurrentDate,
+    appointments,
     selectedEmployee,
     getAppointmentsForDate,
     getEmployeeColor,
-    onDayClick,
-    onAppointmentClick
-}: MonthCalendarViewProps) {
+    employees,
+    onAppointmentClick,
+    onDayClick
+}: MobileMonthCalendarViewProps) {
     const generateCalendarDays = () => {
         const start = startOfMonth(currentDate)
         const end = endOfMonth(currentDate)
-        return eachDayOfInterval({ start, end })
+        const allDays = eachDayOfInterval({ start, end })
+
+        // Filter out Sundays (day 0)
+        return allDays.filter(day => day.getDay() !== 0)
     }
 
+
     return (
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-xl shadow-lg p-4 md:p-6">
             {/* Calendar Navigation */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-6">
                 <button
                     onClick={() => setCurrentDate(addDays(currentDate, -30))}
-                    className="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300"
+                    className="p-2 md:p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300"
                 >
-                    <ChevronLeft className="w-6 h-6 text-gray-700" />
+                    <ChevronLeft className="w-4 h-4 md:w-6 md:h-6 text-gray-700" />
                 </button>
 
-                <h3 className="text-2xl font-bold text-gray-800">
+                <h3 className="text-lg md:text-2xl font-bold text-gray-800">
                     {format(currentDate, 'MMMM yyyy', { locale: es })}
                 </h3>
 
                 <button
                     onClick={() => setCurrentDate(addDays(currentDate, 30))}
-                    className="p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300"
+                    className="p-2 md:p-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border border-gray-300"
                 >
-                    <ChevronRight className="w-6 h-6 text-gray-700" />
+                    <ChevronRight className="w-4 h-4 md:w-6 md:h-6 text-gray-700" />
                 </button>
             </div>
 
-            {/* Calendar Grid */}
-            <div className="grid grid-cols-7 gap-3 mb-4">
-                {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
-                    <div key={day} className="p-3 text-center font-semibold text-gray-600 text-sm bg-gray-50 rounded-lg">
+            {/* Calendar Grid - Mobile Optimized */}
+            <div className="grid grid-cols-6 gap-2 mb-4">
+                {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map(day => (
+                    <div key={day} className="p-2 text-center font-semibold text-gray-600 text-xs md:text-sm bg-gray-50 rounded-lg">
                         {day}
                     </div>
                 ))}
             </div>
 
-            <div className="grid grid-cols-7 gap-3">
+            <div className="grid grid-cols-6 gap-2">
                 {generateCalendarDays().map((date) => {
                     const dayAppointments = getAppointmentsForDate(date, selectedEmployee || undefined)
                     const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd')
@@ -72,32 +78,34 @@ export default function MonthCalendarView({
                     return (
                         <div
                             key={date.toISOString()}
-                            className={`min-h-[120px] p-3 border-2 rounded-xl bg-white text-gray-900 transition-all duration-200 hover:shadow-md ${isToday ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-gray-300'
+                            className={`min-h-[60px] md:min-h-[80px] p-2 border-2 rounded-xl transition-all duration-200 hover:shadow-md ${isToday ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-gray-300'
                                 }`}
                         >
                             <div
-                                className={`text-sm font-bold mb-2 cursor-pointer ${isToday ? 'text-amber-700' : 'text-gray-700'}`}
+                                className={`text-xs md:text-sm font-bold mb-1 cursor-pointer ${isToday ? 'text-amber-700' : 'text-gray-700'}`}
                                 onClick={() => onDayClick?.(date)}
                             >
                                 {format(date, 'd')}
                             </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
-                                {dayAppointments.slice(0, 9).map((apt, index) => (
+
+                            {/* Show numbered appointment boxes */}
+                            <div className="grid grid-cols-2 gap-1">
+                                {dayAppointments.slice(0, 6).map((apt, index) => (
                                     <div
                                         key={apt.id}
-                                        className={`w-full h-5 rounded-md border cursor-pointer flex items-center justify-center text-xs font-bold transition-all duration-200 hover:scale-105 ${getEmployeeColor(apt.employee.id)}`}
+                                        className={`w-full h-4 md:h-5 rounded-md border cursor-pointer flex items-center justify-center text-xs font-bold transition-all duration-200 hover:scale-105 ${getEmployeeColor(apt.employee.id)}`}
                                         title={`${apt.clientName} - ${apt.service.name} (${format(new Date(apt.startTime), 'HH:mm')})`}
                                         onClick={(e) => {
                                             e.stopPropagation()
-                                            onAppointmentClick?.(apt)
+                                            onAppointmentClick(apt)
                                         }}
                                     >
                                         {index + 1}
                                     </div>
                                 ))}
-                                {dayAppointments.length > 9 && (
-                                    <div className="col-span-2 sm:col-span-3 text-xs text-gray-500 text-center py-1">
-                                        +{dayAppointments.length - 9} más
+                                {dayAppointments.length > 6 && (
+                                    <div className="col-span-2 text-xs text-gray-500 text-center">
+                                        +{dayAppointments.length - 6}
                                     </div>
                                 )}
                             </div>

@@ -65,7 +65,7 @@ export default function BookingForm({ slot, businessSlug = 'sample-business', on
             setLoading(true)
             setError(null)
 
-            const response = await fetch('/api/appointments', {
+            const response = await fetch('/api/appointments?businessSlug=sample-business', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

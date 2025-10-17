@@ -47,6 +47,7 @@ export default function AdminDashboard() {
                         setCurrentDate={setCurrentDate}
                         selectedEmployee={selectedEmployee}
                         setSelectedEmployee={setSelectedEmployee}
+                        services={services}
                     />
                 )
             case 'employees':

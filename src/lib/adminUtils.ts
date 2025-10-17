@@ -34,7 +34,7 @@ export const getEmployeeColor = (employees: Employee[], employeeId: string) => {
 export const handleDeleteAppointment = async (appointmentId: string) => {
     if (confirm('¿Estás seguro de que quieres cancelar esta cita?')) {
         try {
-            const response = await fetch(`/api/appointments?id=${appointmentId}`, {
+            const response = await fetch(`/api/appointments?id=${appointmentId}&businessSlug=sample-business`, {
                 method: 'DELETE'
             })
             if (response.ok) {

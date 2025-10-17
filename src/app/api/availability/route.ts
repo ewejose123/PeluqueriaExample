@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { generateTimeSlots, isTimeSlotAvailable } from '@/lib/availability'
+import { retryPrismaOperation } from '@/lib/dbRetry'
+import { generateDynamicTimeSlots } from '@/lib/availability'
 import { addDays, format, parseISO, startOfDay, addMinutes } from 'date-fns'
 
 // GET /api/availability - Get available time slots for a service
@@ -17,48 +17,50 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Missing serviceId or date' }, { status: 400 })
     }
 
-    // Get service details
-    const service = await prisma.service.findFirst({
-      where: { 
-        id: serviceId,
-        business: { slug: businessSlug },
-        isActive: true 
-      },
-      include: {
-        employees: {
-          where: { 
-            isActive: true,
-            // Filter by specific employee if provided
-            ...(employeeId && { id: employeeId })
-          },
-          include: {
-            workingHours: {
-              where: { isActive: true }
+    // Get service details with retry
+    const service = await retryPrismaOperation(async (prisma) => {
+      return await prisma.service.findFirst({
+        where: { 
+          id: serviceId,
+          business: { slug: businessSlug },
+          isActive: true 
+        },
+        include: {
+          employees: {
+            where: { 
+              isActive: true,
+              // Filter by specific employee if provided
+              ...(employeeId && { id: employeeId })
             },
-            appointments: {
-              where: {
-                startTime: {
-                  gte: startOfDay(parseISO(date))
-                },
-                endTime: {
-                  lt: addDays(startOfDay(parseISO(date)), 1)
-                },
-                status: { not: 'cancelled' }
-              }
-            },
-            timeBlocks: {
-              where: {
-                startTime: {
-                  gte: startOfDay(parseISO(date))
-                },
-                endTime: {
-                  lt: addDays(startOfDay(parseISO(date)), 1)
+            include: {
+              workingHours: {
+                where: { isActive: true }
+              },
+              appointments: {
+                where: {
+                  startTime: {
+                    gte: startOfDay(parseISO(date))
+                  },
+                  endTime: {
+                    lt: addDays(startOfDay(parseISO(date)), 1)
+                  },
+                  status: { not: 'cancelled' }
+                }
+              },
+              timeBlocks: {
+                where: {
+                  startTime: {
+                    gte: startOfDay(parseISO(date))
+                  },
+                  endTime: {
+                    lt: addDays(startOfDay(parseISO(date)), 1)
+                  }
                 }
               }
             }
           }
         }
-      }
+      })
     })
 
     if (!service) {
@@ -86,24 +88,25 @@ export async function GET(request: NextRequest) {
 
     for (const employee of service.employees) {
       // Find working hours for this day
-      const workingHour = employee.workingHours.find(wh => wh.dayOfWeek === dayOfWeek)
+      const workingHour = employee.workingHours.find((wh: any) => wh.dayOfWeek === dayOfWeek)
       
       if (!workingHour) continue
 
-      // Generate time slots for this employee
-      const slots = generateTimeSlots(
+      // Generate dynamic time slots for this employee
+      const slots = generateDynamicTimeSlots(
         workingHour.startTime,
         workingHour.endTime,
         totalDuration,
-        employee.appointments.map(apt => ({
+        employee.appointments.map((apt: any) => ({
           startTime: apt.startTime,
           endTime: apt.endTime
         })),
-        employee.timeBlocks.map(block => ({
+        employee.timeBlocks.map((block: any) => ({
           startTime: block.startTime,
           endTime: block.endTime
         })),
-        selectedDate
+        selectedDate,
+        30 // 30-minute intervals (configurable)
       )
 
       // Add employee info to each slot

@@ -55,6 +55,8 @@ src/
 - **Consistent responses**: Standardize API response format
 - **Versioning**: Plan for API versioning from the start
 - **Rate limiting**: Implement proper rate limiting
+- **BusinessSlug parameter**: ALL API calls MUST include businessSlug parameter for multi-tenant support
+- **Parameter consistency**: Ensure all API routes handle businessSlug parameter consistently
 
 ## Business Logic Guidelines
 
@@ -167,5 +169,46 @@ src/
 - **Booking patterns**: Handle different booking requirements
 - **Payment methods**: Support various payment options
 - **Communication**: Different notification preferences
+
+## Common Issues & Solutions
+
+### Database Connection Errors (P1001)
+**Problem**: `Can't reach database server` errors in API routes
+**Root Cause**: API calls missing required `businessSlug` parameter
+**Solution**: 
+1. Check all `fetch()` calls include `?businessSlug=sample-business`
+2. Ensure all API routes handle `businessSlug` parameter
+3. Verify API route implementations are consistent
+
+**Prevention**:
+- Always include businessSlug in API calls: `fetch('/api/endpoint?businessSlug=sample-business')`
+- Test all API endpoints after changes
+- Use consistent parameter handling across all routes
+
+### Admin Panel Data Loading Issues
+**Problem**: Admin panel shows errors or fails to load data
+**Root Cause**: Inconsistent API parameter usage
+**Solution**:
+1. Verify `useAdminData.ts` includes businessSlug in all calls
+2. Check `QuickAppointment.tsx` and `BookingForm.tsx` for missing parameters
+3. Ensure all API routes handle businessSlug consistently
+
+**Prevention**:
+- Always test admin panel after API changes
+- Use TypeScript to catch parameter mismatches
+- Implement consistent error handling
+
+### Compiled JavaScript Syntax Errors
+**Problem**: Syntax errors in compiled JavaScript (e.g., missing closing braces)
+**Root Cause**: Source code has syntax errors that prevent proper compilation
+**Solution**:
+1. Check source files for missing braces, semicolons, or syntax errors
+2. Use TypeScript compiler to catch syntax issues: `npx tsc --noEmit`
+3. Verify all API route files have proper syntax
+
+**Prevention**:
+- Use TypeScript for type safety
+- Run linting before commits
+- Test compilation regularly
 
 This document should be updated as the system evolves and new requirements emerge.

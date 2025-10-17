@@ -1,17 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { retryPrismaOperation } from '@/lib/dbRetry'
 
 export async function GET(request: NextRequest) {
   try {
-    const appointments = await prisma.appointment.findMany({
-      include: {
-        service: true,
-        employee: true
-      },
-      orderBy: {
-        startTime: 'asc'
-      }
+    console.log('Fetching appointments...')
+    
+    const { searchParams } = new URL(request.url)
+    const businessSlug = searchParams.get('businessSlug') || 'sample-business'
+    
+    // Get business first with retry
+    const business = await retryPrismaOperation(async (prisma) => {
+      return await prisma.business.findUnique({
+        where: { slug: businessSlug }
+      })
     })
+    
+    if (!business) {
+      return NextResponse.json({ error: 'Business not found' }, { status: 404 })
+    }
+    
+    const appointments = await retryPrismaOperation(async (prisma) => {
+      return await prisma.appointment.findMany({
+        where: { businessId: business.id },
+        include: {
+          service: true,
+          employee: true
+        },
+        orderBy: {
+          startTime: 'asc'
+        }
+      })
+    })
+
+    console.log('Appointments found:', appointments.length)
 
     return NextResponse.json({ appointments })
   } catch (error) {
@@ -33,30 +54,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid date format' }, { status: 400 })
     }
 
-    // Get business ID
-    const business = await prisma.business.findUnique({
-      where: { slug: businessSlug || 'sample-business' }
+    // Get business ID with retry
+    const business = await retryPrismaOperation(async (prisma) => {
+      return await prisma.business.findUnique({
+        where: { slug: businessSlug || 'sample-business' }
+      })
     })
 
     if (!business) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 })
     }
 
-    const appointment = await prisma.appointment.create({
-      data: {
-        startTime: startDate,
-        endTime: endDate,
-        clientName,
-        clientEmail,
-        clientPhone,
-        serviceId,
-        employeeId,
-        businessId: business.id
-      },
-      include: {
-        service: true,
-        employee: true
-      }
+    const appointment = await retryPrismaOperation(async (prisma) => {
+      return await prisma.appointment.create({
+        data: {
+          startTime: startDate,
+          endTime: endDate,
+          clientName,
+          clientEmail,
+          clientPhone,
+          serviceId,
+          employeeId,
+          businessId: business.id
+        },
+        include: {
+          service: true,
+          employee: true
+        }
+      })
     })
 
     return NextResponse.json({ appointment })
@@ -75,8 +100,21 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Appointment ID is required' }, { status: 400 })
     }
 
-    await prisma.appointment.delete({
-      where: { id: appointmentId }
+    // First check if the appointment exists
+    const existingAppointment = await retryPrismaOperation(async (prisma) => {
+      return await prisma.appointment.findUnique({
+        where: { id: appointmentId }
+      })
+    })
+
+    if (!existingAppointment) {
+      return NextResponse.json({ error: 'Appointment not found' }, { status: 404 })
+    }
+
+    await retryPrismaOperation(async (prisma) => {
+      return await prisma.appointment.delete({
+        where: { id: appointmentId }
+      })
     })
 
     return NextResponse.json({ success: true })

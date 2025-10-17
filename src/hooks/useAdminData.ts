@@ -13,10 +13,10 @@ export function useAdminData() {
         setLoading(true)
         try {
             const [employeesRes, servicesRes, appointmentsRes, settingsRes] = await Promise.all([
-                fetch('/api/employees'),
-                fetch('/api/services'),
-                fetch('/api/appointments'),
-                fetch('/api/booking-settings')
+                fetch('/api/employees?businessSlug=sample-business'),
+                fetch('/api/services?businessSlug=sample-business'),
+                fetch('/api/appointments?businessSlug=sample-business'),
+                fetch('/api/booking-settings?businessSlug=sample-business')
             ])
 
             if (employeesRes.ok) {
@@ -47,7 +47,7 @@ export function useAdminData() {
 
     const updateBookingSettings = async (updates: Partial<BookingSettings>) => {
         try {
-            const response = await fetch('/api/booking-settings', {
+            const response = await fetch('/api/booking-settings?businessSlug=sample-business', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(updates)

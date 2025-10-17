@@ -4,6 +4,7 @@ export interface Employee {
     name: string
     email?: string
     phone?: string
+    avatarUrl?: string
     isActive: boolean
     services: Service[]
     workingHours: WorkingHours[]
@@ -30,6 +31,8 @@ export interface Appointment {
     endTime: string
     clientName: string
     clientEmail: string
+    clientPhone?: string
+    notes?: string
     service: Service
     employee: Employee
 }
@@ -50,7 +53,7 @@ export interface BookingSettings {
 }
 
 export type AdminTab = 'summary' | 'schedule' | 'employees' | 'services' | 'settings'
-export type CalendarView = 'month' | 'week'
+export type CalendarView = 'month' | 'week' | 'day'
 
 export interface AdminTabConfig {
     id: AdminTab
