@@ -86,8 +86,8 @@ export default function WeekCalendarView({
         const endHour = end.getHours() + end.getMinutes() / 60
 
         // Position relative to 8 AM (0 = 8 AM, 1 = 9 AM, etc.)
-        const topPosition = (startHour - 8) * 60 // 60px per hour
-        const height = (endHour - startHour) * 60 // Height based on duration
+        const topPosition = (startHour - 8) * 80 // 80px per hour for more space
+        const height = (endHour - startHour) * 80 // Height based on duration
 
         // Calculate column width and position
         const columnWidth = 100 / totalProfessionals
@@ -99,7 +99,7 @@ export default function WeekCalendarView({
             height: `${height}px`,
             left: `${leftPosition}%`,
             width: `calc(${columnWidth}% - ${rightMargin}px)`,
-            minHeight: '20px' // Minimum height for very short appointments
+            minHeight: '28px' // Increased minimum height for better text visibility
         }
     }
 
@@ -172,7 +172,7 @@ export default function WeekCalendarView({
                                 <div
                                     key={hour}
                                     className="h-15 border-b border-gray-200 flex items-center justify-end pr-2 transition-colors duration-200"
-                                    style={{ height: '60px' }}
+                                    style={{ height: '80px' }}
                                 >
                                     <span className="text-sm font-medium text-gray-600">
                                         {hour.toString().padStart(2, '0')}:00
@@ -197,14 +197,14 @@ export default function WeekCalendarView({
                                 </div>
 
                                 {/* Day Timeline */}
-                                <div className="relative bg-white" style={{ height: `${hourMarkers.length * 60}px` }}>
+                                <div className="relative bg-white" style={{ height: `${hourMarkers.length * 80}px` }}>
                                     {/* Hour Grid Lines */}
                                     {hourMarkers.map(hour => (
                                         <div
                                             key={hour}
                                             className="absolute w-full border-b border-gray-100 transition-colors duration-200"
                                             style={{
-                                                top: `${(hour - 8) * 60}px`,
+                                                top: `${(hour - 8) * 80}px`,
                                                 height: '1px'
                                             }}
                                         />
@@ -216,7 +216,7 @@ export default function WeekCalendarView({
                                             key={`${hour}-30`}
                                             className="absolute w-full border-b border-gray-50 transition-colors duration-200"
                                             style={{
-                                                top: `${(hour - 8) * 60 + 30}px`,
+                                                top: `${(hour - 8) * 80 + 40}px`,
                                                 height: '1px'
                                             }}
                                         />
@@ -235,27 +235,32 @@ export default function WeekCalendarView({
                                                 {dayAppointments.map(appointment => {
                                                     const style = getAppointmentStyle(appointment, day, professionalIndex, totalProfessionals)
                                                     const duration = Math.round((new Date(appointment.endTime).getTime() - new Date(appointment.startTime).getTime()) / (1000 * 60))
+                                                    const height = (new Date(appointment.endTime).getTime() - new Date(appointment.startTime).getTime()) / (1000 * 60 * 60) * 80 // Convert to pixels
 
                                                     return (
                                                         <div
                                                             key={appointment.id}
-                                                            className={`absolute cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] ${getEmployeeColor(appointment.employee.id)} rounded-lg border border-white/20`}
+                                                            className={`absolute cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02] ${getEmployeeColor(appointment.employee.id)} rounded-lg border`}
                                                             style={style}
                                                             onClick={() => onAppointmentClick?.(appointment)}
                                                         >
-                                                            <div className="p-2 h-full flex flex-col justify-between">
+                                                            <div className="p-1 h-full flex flex-col justify-between">
                                                                 <div className="flex items-center gap-1">
                                                                     <User className="w-2 h-2 flex-shrink-0" />
-                                                                    <div className="text-xs font-semibold truncate text-white">
+                                                                    <div className="text-xs font-semibold truncate">
                                                                         {appointment.clientName}
                                                                     </div>
                                                                 </div>
-                                                                <div className="text-xs text-white/90 truncate">
-                                                                    {appointment.service.name}
-                                                                </div>
-                                                                <div className="text-xs text-white/80">
-                                                                    {format(new Date(appointment.startTime), 'HH:mm')}
-                                                                </div>
+                                                                {height >= 40 && (
+                                                                    <div className="text-xs truncate opacity-90">
+                                                                        {appointment.service.name}
+                                                                    </div>
+                                                                )}
+                                                                {height >= 60 && (
+                                                                    <div className="text-xs opacity-80">
+                                                                        {format(new Date(appointment.startTime), 'HH:mm')}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     )

@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const businessSlug = searchParams.get('businessSlug') || 'sample-business'
 
-    // Get business by slug with retry
+    // Get business by slug with robust connection
     const business = await retryPrismaOperation(async (prisma) => {
       return await prisma.business.findUnique({
         where: { slug: businessSlug },

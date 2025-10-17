@@ -120,13 +120,11 @@ export default function ContactSection() {
                         <div className="bg-gray-200 rounded-xl overflow-hidden shadow-lg">
                             <iframe
                                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1170.094482100921!2d-1.5027971110533258!3d37.766706314959436!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd6492dd39febcd9%3A0x75684cfbcbe4534e!2sCentro%20sociocultural%20La%20C%C3%A1rcel!5e0!3m2!1sen!2ses!4v1760618432531!5m2!1sen!2ses"
-                                width="100%"
-                                height="400"
-                                style={{ border: 0 }}
+                                style={{ border: 0, width: '100%', maxWidth: '100%' }}
                                 allowFullScreen
                                 loading="lazy"
                                 referrerPolicy="no-referrer-when-downgrade"
-                                className="w-full h-[300px] sm:h-[400px] md:h-[500px]"
+                                className="w-full h-[300px] sm:h-[400px] md:h-[500px] max-w-full"
                             />
                         </div>
 

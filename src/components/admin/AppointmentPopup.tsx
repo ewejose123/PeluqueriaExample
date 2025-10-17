@@ -1,5 +1,5 @@
 // Appointment Popup Component
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { X, Edit, Trash2, Save, User, Mail, Phone, Calendar, Clock, AlertCircle, MessageSquare } from 'lucide-react'
 import { format } from 'date-fns'
@@ -38,7 +38,7 @@ export default function AppointmentPopup({
     const [error, setError] = useState<string | null>(null)
 
     // Initialize form data when appointment changes
-    useState(() => {
+    useEffect(() => {
         if (appointment) {
             setFormData({
                 clientName: appointment.clientName,
@@ -48,10 +48,10 @@ export default function AppointmentPopup({
                 endTime: format(new Date(appointment.endTime), 'yyyy-MM-dd\'T\'HH:mm'),
                 employeeId: appointment.employee.id,
                 serviceId: appointment.service.id,
-                notes: ''
+                notes: appointment.notes || ''
             })
         }
-    })
+    }, [appointment])
 
     const handleSave = async () => {
         if (!appointment) return
@@ -118,16 +118,16 @@ export default function AppointmentPopup({
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto mx-4"
+                className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[95vh] overflow-y-auto mx-2"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
+                <div className="flex items-center justify-between p-3 md:p-4 border-b border-gray-100 bg-gradient-to-r from-amber-50 to-orange-50">
                     <div>
-                        <h2 className="text-lg md:text-xl font-bold text-gray-900">
+                        <h2 className="text-base md:text-lg font-bold text-gray-900">
                             {isEditing ? 'Editar Cita' : 'Detalles de la Cita'}
                         </h2>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-xs text-gray-600 mt-1">
                             {format(new Date(appointment.startTime), 'dd MMMM yyyy', { locale: es })}
                         </p>
                     </div>
@@ -152,7 +152,7 @@ export default function AppointmentPopup({
                 </div>
 
                 {/* Content */}
-                <div className="p-4 md:p-6 space-y-6">
+                <div className="p-3 md:p-4 space-y-4">
                     {error && (
                         <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700">
                             <AlertCircle className="w-4 h-4" />
@@ -169,24 +169,24 @@ export default function AppointmentPopup({
                             <h3 className="text-lg font-bold text-gray-900">Información del Cliente</h3>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div className="bg-gray-50 rounded-xl p-3">
-                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Nombre Completo</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="bg-gray-50 rounded-lg p-2">
+                                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Nombre Completo</label>
                                 {isEditing ? (
                                     <input
                                         type="text"
                                         value={formData.clientName}
                                         onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium"
+                                        className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium text-sm"
                                     />
                                 ) : (
                                     <p className="text-sm font-medium text-gray-900">{appointment.clientName}</p>
                                 )}
                             </div>
 
-                            <div className="bg-gray-50 rounded-xl p-3">
-                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
-                                    <Mail className="w-4 h-4" />
+                            <div className="bg-gray-50 rounded-lg p-2">
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1">
+                                    <Mail className="w-3 h-3" />
                                     Email
                                 </label>
                                 {isEditing ? (
@@ -194,16 +194,16 @@ export default function AppointmentPopup({
                                         type="email"
                                         value={formData.clientEmail}
                                         onChange={(e) => setFormData({ ...formData, clientEmail: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium"
+                                        className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium text-sm"
                                     />
                                 ) : (
                                     <p className="text-sm font-medium text-gray-900">{appointment.clientEmail}</p>
                                 )}
                             </div>
 
-                            <div className="bg-gray-50 rounded-xl p-3">
-                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
-                                    <Phone className="w-4 h-4" />
+                            <div className="bg-gray-50 rounded-lg p-2">
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1">
+                                    <Phone className="w-3 h-3" />
                                     Teléfono
                                 </label>
                                 {isEditing ? (
@@ -211,16 +211,16 @@ export default function AppointmentPopup({
                                         type="tel"
                                         value={formData.clientPhone}
                                         onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium"
+                                        className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium text-sm"
                                     />
                                 ) : (
                                     <p className="text-sm font-medium text-gray-900">{appointment.clientPhone || 'No proporcionado'}</p>
                                 )}
                             </div>
 
-                            <div className="bg-gray-50 rounded-xl p-3">
-                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 flex items-center gap-1">
-                                    <MessageSquare className="w-4 h-4" />
+                            <div className="bg-gray-50 rounded-lg p-2">
+                                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 flex items-center gap-1">
+                                    <MessageSquare className="w-3 h-3" />
                                     Notas
                                 </label>
                                 {isEditing ? (
@@ -228,7 +228,7 @@ export default function AppointmentPopup({
                                         value={formData.notes}
                                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                                         rows={2}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium resize-none"
+                                        className="w-full px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium resize-none text-sm"
                                         placeholder="Notas adicionales..."
                                     />
                                 ) : (

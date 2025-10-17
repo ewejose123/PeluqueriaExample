@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { AdminTab } from '@/types/admin'
+import { AdminTab, Appointment } from '@/types/admin'
 import { useAdminData } from '@/hooks/useAdminData'
 import { getAppointmentsForDate } from '@/lib/adminUtils'
 import AdminHeader from '@/components/admin/AdminHeader'
@@ -12,11 +12,13 @@ import ScheduleView from '@/components/admin/ScheduleView'
 import EmployeesView from '@/components/admin/EmployeesView'
 import ServicesView from '@/components/admin/ServicesView'
 import SettingsView from '@/components/admin/SettingsView'
+import AppointmentPopup from '@/components/admin/AppointmentPopup'
 
 export default function AdminDashboard() {
     const [activeTab, setActiveTab] = useState<AdminTab>('schedule')
     const [currentDate, setCurrentDate] = useState(new Date())
     const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null)
+    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null)
 
     const {
         employees,
@@ -28,6 +30,22 @@ export default function AdminDashboard() {
         updateBookingSettings
     } = useAdminData()
 
+    const handleAppointmentClick = (appointment: Appointment) => {
+        setSelectedAppointment(appointment)
+    }
+
+    const handleAppointmentUpdate = (updatedAppointment: Appointment) => {
+        // Refresh data after update
+        fetchData()
+        setSelectedAppointment(null)
+    }
+
+    const handleAppointmentDelete = (appointmentId: string) => {
+        // Refresh data after deletion
+        fetchData()
+        setSelectedAppointment(null)
+    }
+
     const renderTabContent = () => {
         switch (activeTab) {
             case 'summary':
@@ -36,6 +54,7 @@ export default function AdminDashboard() {
                         appointments={appointments}
                         employees={employees}
                         services={services}
+                        onAppointmentClick={handleAppointmentClick}
                     />
                 )
             case 'schedule':
@@ -103,6 +122,18 @@ export default function AdminDashboard() {
                 >
                     {renderTabContent()}
                 </motion.div>
+
+                {/* Appointment Popup */}
+                {selectedAppointment && (
+                    <AppointmentPopup
+                        appointment={selectedAppointment}
+                        employees={employees}
+                        services={services}
+                        onClose={() => setSelectedAppointment(null)}
+                        onUpdate={handleAppointmentUpdate}
+                        onDelete={handleAppointmentDelete}
+                    />
+                )}
             </div>
         </div>
     )

@@ -8,9 +8,10 @@ interface SummaryViewProps {
     appointments: Appointment[]
     employees: Employee[]
     services: Service[]
+    onAppointmentClick?: (appointment: Appointment) => void
 }
 
-export default function SummaryView({ appointments, employees, services }: SummaryViewProps) {
+export default function SummaryView({ appointments, employees, services, onAppointmentClick }: SummaryViewProps) {
     const todaysAppointments = appointments.filter((apt) => {
         const aptDate = new Date(apt.startTime)
         const today = new Date()
@@ -89,7 +90,11 @@ export default function SummaryView({ appointments, employees, services }: Summa
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">Citas Recientes</h3>
                 <div className="space-y-3">
                     {appointments.slice(0, 5).reverse().map((apt) => (
-                        <div key={apt.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div
+                            key={apt.id}
+                            className={`flex items-center justify-between p-3 rounded-lg transition-colors duration-200 ${onAppointmentClick ? 'bg-gray-50 hover:bg-gray-100 cursor-pointer' : 'bg-gray-50'}`}
+                            onClick={() => onAppointmentClick?.(apt)}
+                        >
                             <div>
                                 <p className="font-medium text-gray-900">{apt.clientName}</p>
                                 <p className="text-sm text-gray-600">{apt.service.name} - {apt.employee.name}</p>

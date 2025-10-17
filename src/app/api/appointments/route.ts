@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { retryPrismaOperation } from '@/lib/dbRetry'
+import { db } from '@/lib/simplePrisma'
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,28 +8,24 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const businessSlug = searchParams.get('businessSlug') || 'sample-business'
     
-    // Get business first with retry
-    const business = await retryPrismaOperation(async (prisma) => {
-      return await prisma.business.findUnique({
-        where: { slug: businessSlug }
-      })
+    // Get business first
+    const business = await db.business.findUnique({
+      where: { slug: businessSlug }
     })
     
     if (!business) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 })
     }
     
-    const appointments = await retryPrismaOperation(async (prisma) => {
-      return await prisma.appointment.findMany({
-        where: { businessId: business.id },
-        include: {
-          service: true,
-          employee: true
-        },
-        orderBy: {
-          startTime: 'asc'
-        }
-      })
+    const appointments = await db.appointment.findMany({
+      where: { businessId: business.id },
+      include: {
+        service: true,
+        employee: true
+      },
+      orderBy: {
+        startTime: 'asc'
+      }
     })
 
     console.log('Appointments found:', appointments.length)
@@ -37,7 +33,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ appointments })
   } catch (error) {
     console.error('Error fetching appointments:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    
+    // Enhanced error response
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorCode = error && typeof error === 'object' && 'code' in error ? error.code : 'UNKNOWN'
+    
+    return NextResponse.json({ 
+      error: 'Failed to fetch appointments',
+      details: errorMessage,
+      code: errorCode,
+      suggestion: 'Please try again or contact support if the issue persists'
+    }, { status: 500 })
   }
 }
 
@@ -54,34 +60,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid date format' }, { status: 400 })
     }
 
-    // Get business ID with retry
-    const business = await retryPrismaOperation(async (prisma) => {
-      return await prisma.business.findUnique({
-        where: { slug: businessSlug || 'sample-business' }
-      })
+    // Get business ID
+    const business = await db.business.findUnique({
+      where: { slug: businessSlug || 'sample-business' }
     })
 
     if (!business) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 })
     }
 
-    const appointment = await retryPrismaOperation(async (prisma) => {
-      return await prisma.appointment.create({
-        data: {
-          startTime: startDate,
-          endTime: endDate,
-          clientName,
-          clientEmail,
-          clientPhone,
-          serviceId,
-          employeeId,
-          businessId: business.id
-        },
-        include: {
-          service: true,
-          employee: true
-        }
-      })
+    const appointment = await db.appointment.create({
+      data: {
+        startTime: startDate,
+        endTime: endDate,
+        clientName,
+        clientEmail,
+        clientPhone,
+        serviceId,
+        employeeId,
+        businessId: business.id
+      },
+      include: {
+        service: true,
+        employee: true
+      }
     })
 
     return NextResponse.json({ appointment })

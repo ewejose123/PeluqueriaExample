@@ -10,7 +10,9 @@
     "db:migrate": "prisma migrate dev",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma migrate reset && npm run db:seed"
+    "db:reset": "prisma migrate reset && npm run db:seed",
+    "db:test": "tsx scripts/test-database-config.ts",
+    "health": "curl http://localhost:3000/api/health"
   },
   "dependencies": {
     "@fullcalendar/daygrid": "^6.1.19",
