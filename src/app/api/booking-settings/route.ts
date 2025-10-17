@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { retryPrismaOperation } from '@/lib/dbRetry'
+import { db } from '@/lib/simplePrisma'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const businessSlug = searchParams.get('businessSlug') || 'sample-business'
 
-    // Get business by slug with robust connection
-    const business = await retryPrismaOperation(async (prisma) => {
-      return await prisma.business.findUnique({
-        where: { slug: businessSlug },
-        include: {
-          bookingSettings: true
-        }
-      })
+    // Get business by slug
+    const business = await db.business.findUnique({
+      where: { slug: businessSlug },
+      include: {
+        bookingSettings: true
+      }
     })
 
     if (!business) {
@@ -23,30 +21,28 @@ export async function GET(request: NextRequest) {
     // If no booking settings exist, create default ones
     let settings = business.bookingSettings
     if (!settings) {
-      settings = await retryPrismaOperation(async (prisma) => {
-        return await prisma.bookingSettings.create({
-          data: {
-            businessId: business.id,
-            advanceBookingDays: 30,
-            minBookingHours: 2,
-            maxBookingHours: 24,
-            slotDuration: 30,
-            bufferTime: 15,
-            allowSameDay: true,
-            requireConfirmation: false,
-            cancellationHours: 24,
-            maxAdvanceDays: 90,
-            workingDays: {
-              "0": false, // Sunday
-              "1": true,  // Monday
-              "2": true,  // Tuesday
-              "3": true,  // Wednesday
-              "4": true,  // Thursday
-              "5": true,  // Friday
-              "6": true   // Saturday
-            }
+      settings = await db.bookingSettings.create({
+        data: {
+          businessId: business.id,
+          advanceBookingDays: 30,
+          minBookingHours: 2,
+          maxBookingHours: 24,
+          slotDuration: 30,
+          bufferTime: 15,
+          allowSameDay: true,
+          requireConfirmation: false,
+          cancellationHours: 24,
+          maxAdvanceDays: 90,
+          workingDays: {
+            "0": false, // Sunday
+            "1": true,  // Monday
+            "2": true,  // Tuesday
+            "3": true,  // Wednesday
+            "4": true,  // Thursday
+            "5": true,  // Friday
+            "6": true   // Saturday
           }
-        })
+        }
       })
     }
 
@@ -63,27 +59,23 @@ export async function PUT(request: NextRequest) {
     const businessSlug = searchParams.get('businessSlug') || 'sample-business'
     const body = await request.json()
 
-    // Get business by slug with retry
-    const business = await retryPrismaOperation(async (prisma) => {
-      return await prisma.business.findUnique({
-        where: { slug: businessSlug }
-      })
+    // Get business by slug
+    const business = await db.business.findUnique({
+      where: { slug: businessSlug }
     })
 
     if (!business) {
       return NextResponse.json({ error: 'Business not found' }, { status: 404 })
     }
 
-    // Update or create booking settings with retry
-    const settings = await retryPrismaOperation(async (prisma) => {
-      return await prisma.bookingSettings.upsert({
-        where: { businessId: business.id },
-        update: body,
-        create: {
-          businessId: business.id,
-          ...body
-        }
-      })
+    // Update or create booking settings
+    const settings = await db.bookingSettings.upsert({
+      where: { businessId: business.id },
+      update: body,
+      create: {
+        businessId: business.id,
+        ...body
+      }
     })
 
     return NextResponse.json({ settings })

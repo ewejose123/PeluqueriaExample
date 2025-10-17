@@ -103,20 +103,16 @@ export async function DELETE(request: NextRequest) {
     }
 
     // First check if the appointment exists
-    const existingAppointment = await retryPrismaOperation(async (prisma) => {
-      return await prisma.appointment.findUnique({
-        where: { id: appointmentId }
-      })
+    const existingAppointment = await db.appointment.findUnique({
+      where: { id: appointmentId }
     })
 
     if (!existingAppointment) {
       return NextResponse.json({ error: 'Appointment not found' }, { status: 404 })
     }
 
-    await retryPrismaOperation(async (prisma) => {
-      return await prisma.appointment.delete({
-        where: { id: appointmentId }
-      })
+    await db.appointment.delete({
+      where: { id: appointmentId }
     })
 
     return NextResponse.json({ success: true })

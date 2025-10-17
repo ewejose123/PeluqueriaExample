@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { retryPrismaOperation } from '@/lib/dbRetry'
+import { db } from '@/lib/simplePrisma'
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -10,11 +10,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Employee ID is required' }, { status: 400 })
     }
 
-    // Check if employee has any appointments with retry
-    const appointments = await retryPrismaOperation(async (prisma) => {
-      return await prisma.appointment.findMany({
-        where: { employeeId }
-      })
+    // Check if employee has any appointments
+    const appointments = await db.appointment.findMany({
+      where: { employeeId }
     })
 
     if (appointments.length > 0) {
@@ -23,10 +21,8 @@ export async function DELETE(request: NextRequest) {
       }, { status: 400 })
     }
 
-    await retryPrismaOperation(async (prisma) => {
-      return await prisma.employee.delete({
-        where: { id: employeeId }
-      })
+    await db.employee.delete({
+      where: { id: employeeId }
     })
 
     return NextResponse.json({ success: true })

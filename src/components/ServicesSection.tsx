@@ -82,16 +82,15 @@ export default function ServicesSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.6, delay: index * 0.1 }}
                             viewport={{ once: true }}
-                            className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer"
+                            className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
                         >
                             <div className="relative overflow-hidden">
                                 <img
                                     src={service.image}
                                     alt={service.name}
-                                    className="w-full h-48 sm:h-56 md:h-64 object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                                    className="w-full h-48 sm:h-56 md:h-64 object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent group-hover:from-black/70 group-hover:via-black/30 transition-all duration-500" />
-                                <div className="absolute inset-0 bg-amber-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                                 <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
                                     <h3 className="text-white text-lg sm:text-xl font-bold mb-1 sm:mb-2">{service.name}</h3>
                                     <div className="flex items-center gap-3 sm:gap-4 text-white/90 text-xs sm:text-sm">

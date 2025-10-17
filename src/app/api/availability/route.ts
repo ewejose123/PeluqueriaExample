@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { retryPrismaOperation } from '@/lib/dbRetry'
+import { db } from '@/lib/simplePrisma'
 import { generateDynamicTimeSlots } from '@/lib/availability'
 import { addDays, format, parseISO, startOfDay, addMinutes } from 'date-fns'
 
@@ -17,50 +17,48 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Missing serviceId or date' }, { status: 400 })
     }
 
-    // Get service details with retry
-    const service = await retryPrismaOperation(async (prisma) => {
-      return await prisma.service.findFirst({
-        where: { 
-          id: serviceId,
-          business: { slug: businessSlug },
-          isActive: true 
-        },
-        include: {
-          employees: {
-            where: { 
-              isActive: true,
-              // Filter by specific employee if provided
-              ...(employeeId && { id: employeeId })
+    // Get service details
+    const service = await db.service.findFirst({
+      where: { 
+        id: serviceId,
+        business: { slug: businessSlug },
+        isActive: true 
+      },
+      include: {
+        employees: {
+          where: { 
+            isActive: true,
+            // Filter by specific employee if provided
+            ...(employeeId && { id: employeeId })
+          },
+          include: {
+            workingHours: {
+              where: { isActive: true }
             },
-            include: {
-              workingHours: {
-                where: { isActive: true }
-              },
-              appointments: {
-                where: {
-                  startTime: {
-                    gte: startOfDay(parseISO(date))
-                  },
-                  endTime: {
-                    lt: addDays(startOfDay(parseISO(date)), 1)
-                  },
-                  status: { not: 'cancelled' }
-                }
-              },
-              timeBlocks: {
-                where: {
-                  startTime: {
-                    gte: startOfDay(parseISO(date))
-                  },
-                  endTime: {
-                    lt: addDays(startOfDay(parseISO(date)), 1)
-                  }
+            appointments: {
+              where: {
+                startTime: {
+                  gte: startOfDay(parseISO(date))
+                },
+                endTime: {
+                  lt: addDays(startOfDay(parseISO(date)), 1)
+                },
+                status: { not: 'cancelled' }
+              }
+            },
+            timeBlocks: {
+              where: {
+                startTime: {
+                  gte: startOfDay(parseISO(date))
+                },
+                endTime: {
+                  lt: addDays(startOfDay(parseISO(date)), 1)
                 }
               }
             }
           }
         }
-      })
+      }
     })
 
     if (!service) {
@@ -88,7 +86,7 @@ export async function GET(request: NextRequest) {
 
     for (const employee of service.employees) {
       // Find working hours for this day
-      const workingHour = employee.workingHours.find((wh: any) => wh.dayOfWeek === dayOfWeek)
+      const workingHour = employee.workingHours.find((wh: { dayOfWeek: number }) => wh.dayOfWeek === dayOfWeek)
       
       if (!workingHour) continue
 
@@ -97,11 +95,11 @@ export async function GET(request: NextRequest) {
         workingHour.startTime,
         workingHour.endTime,
         totalDuration,
-        employee.appointments.map((apt: any) => ({
+        employee.appointments.map((apt: { startTime: Date; endTime: Date }) => ({
           startTime: apt.startTime,
           endTime: apt.endTime
         })),
-        employee.timeBlocks.map((block: any) => ({
+        employee.timeBlocks.map((block: { startTime: Date; endTime: Date }) => ({
           startTime: block.startTime,
           endTime: block.endTime
         })),
