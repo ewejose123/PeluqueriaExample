@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Peluquería Booking Platform
 
-## Getting Started
+Modern multi-business booking stack tailored to salons/barberías. Public customers get a conversion-focused landing page plus a three-step booking wizard, while admins manage services, pros, availability, and policies from a realtime dashboard backed by Prisma + PostgreSQL.
 
-First, run the development server:
+## Product Highlights
+- Multi-salon ready: business slug routing, per-brand themes, independent policies
+- Full booking funnel: service cards → calendar/time grid → employee + contact capture
+- Deep admin controls: drag-and-drop calendar, employee rosters, configurable booking windows, time-off blocks, analytics-ready summaries
+- Automated ops: Supabase Auth sessions, Resend transactional emails, buffer-aware availability engine, MSW-backed contract tests
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech Stack
+- **UI**: Next.js 15 App Router, React 19, TypeScript, Tailwind CSS 4, Framer Motion, FullCalendar
+- **Server**: Next.js API routes, Prisma ORM, Supabase PostgreSQL, Supabase Auth, date-fns utilities
+- **Messaging**: Resend + React Email templates
+- **Tooling**: Jest 30, Testing Library, MSW, ESLint 9, Turbopack dev/build
+
+## Key Modules
+- **Client Experience**: `src/app/page.tsx` landing, `src/app/book/page.tsx` booking flow, UI atoms in `src/components/booking`
+- **Admin Workspace**: `src/app/admin/page.tsx` plus feature modules in `src/components/admin` (services, employees, schedule, settings)
+- **Booking Engine**: `src/lib/availability.ts`, Prisma schema in `prisma/schema.prisma`, API contracts under `src/app/api`
+- **Data + Scripts**: `prisma/seed.ts` for demo data, helper scripts under `scripts/`
+
+## Project Structure
+```
+src/
+  app/            # App Router routes (marketing, booking, admin, API)
+  components/     # Shared UI broken down by surface
+  hooks/          # Client data hooks (ex: useAdminData)
+  lib/            # Domain utilities (availability, prisma helpers)
+  types/          # Shared TypeScript contracts
+prisma/           # Schema, migrations, seeding
+scripts/          # Operational helpers (db tests, booking updates)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Getting Started
+1. Install Node 20+ and pnpm/npm/bun; ensure PostgreSQL (Supabase) + Resend accounts are ready
+2. Clone and install dependencies: `npm install`
+3. Create `./.env.local` with the values below
+4. Bootstrap the database: `npm run db:migrate && npm run db:seed`
+5. Start dev mode: `npm run dev` (Turbopack) then hit `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+DATABASE_URL="postgresql://..."
+NEXT_PUBLIC_SUPABASE_URL="https://...supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
+SUPABASE_SERVICE_ROLE_KEY="..."
+RESEND_API_KEY="re_..."
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+NEXT_PUBLIC_DEFAULT_BUSINESS_SLUG="barberia-elite" # change per brand
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## NPM Scripts
+- `npm run dev` start Next.js with Turbopack
+- `npm run build` production build
+- `npm run start` serve the build
+- `npm run lint` ESLint 9
+- `npm run test` Jest + Testing Library + MSW
+- `npm run db:migrate` / `npm run db:seed` schema + fixtures
+- `npm run db:reset` reset and reseed
 
-## Learn More
+## Testing
+- Unit/integration tests live under `src/app/api/__tests__`, `src/components/__tests__`, `src/lib/__tests__`
+- `npm run test:coverage` for reports, `npm run test:watch` while iterating
 
-To learn more about Next.js, take a look at the following resources:
+## Additional Docs
+- `BOOKING_SYSTEM_PLAN.md` roadmap + architecture
+- `DATABASE_CONFIGURATION_GUIDE.md` Supabase + Prisma setup
+- `TESTING.md` testing approach
+- `DEVELOPMENT_GUIDELINES.md` code conventions and review standards
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

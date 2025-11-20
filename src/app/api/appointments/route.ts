@@ -28,9 +28,15 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Transform appointments to include services array for compatibility
+    const transformedAppointments = appointments.map(appointment => ({
+      ...appointment,
+      services: [(appointment as any).service] // Include the single service in a services array
+    }))
+
     console.log('Appointments found:', appointments.length)
 
-    return NextResponse.json({ appointments })
+    return NextResponse.json({ appointments: transformedAppointments })
   } catch (error) {
     console.error('Error fetching appointments:', error)
     
@@ -50,7 +56,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { startTime, endTime, clientName, clientEmail, clientPhone, serviceId, employeeId, businessSlug } = body
+    const { startTime, endTime, clientName, clientEmail, clientPhone, serviceId, services, employeeId, businessSlug } = body
+
+    // Use the first service from services array if provided, otherwise use serviceId
+    const primaryServiceId = services && services.length > 0 ? services[0].id : serviceId
 
     // Validate dates
     const startDate = new Date(startTime)
@@ -76,7 +85,7 @@ export async function POST(request: NextRequest) {
         clientName,
         clientEmail,
         clientPhone,
-        serviceId,
+        serviceId: primaryServiceId,
         employeeId,
         businessId: business.id
       },
@@ -86,7 +95,13 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ appointment })
+    // Transform to include services array
+    const transformedAppointment = {
+      ...appointment,
+      services: services || [(appointment as any).service]
+    }
+
+    return NextResponse.json({ appointment: transformedAppointment })
   } catch (error) {
     console.error('Error creating appointment:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

@@ -68,8 +68,8 @@ export default function DayCalendarView({
         const endHour = end.getHours() + end.getMinutes() / 60
 
         // Position relative to 8 AM (0 = 8 AM, 1 = 9 AM, etc.)
-        const topPosition = (startHour - 8) * 80 // 80px per hour for more space
-        const height = (endHour - startHour) * 80 // Height based on duration
+        const topPosition = (startHour - 8) * 100 // 100px per hour for more space
+        const height = (endHour - startHour) * 100 // Height based on duration
 
         // Calculate column width and position
         const columnWidth = 100 / totalProfessionals
@@ -154,7 +154,7 @@ export default function DayCalendarView({
                             <div
                                 key={hour}
                                 className="h-15 border-b border-gray-200 flex items-center justify-end pr-2 transition-colors duration-200"
-                                style={{ height: '80px' }}
+                                style={{ height: '100px' }}
                             >
                                 <span className="text-sm font-medium text-gray-600">
                                     {hour.toString().padStart(2, '0')}:00
@@ -171,7 +171,7 @@ export default function DayCalendarView({
                                 key={hour}
                                 className="absolute w-full border-b border-gray-100 transition-colors duration-200"
                                 style={{
-                                    top: `${(hour - 8) * 80}px`,
+                                    top: `${(hour - 8) * 100}px`,
                                     height: '1px'
                                 }}
                             />
@@ -183,7 +183,7 @@ export default function DayCalendarView({
                                 key={`${hour}-30`}
                                 className="absolute w-full border-b border-gray-50 transition-colors duration-200"
                                 style={{
-                                    top: `${(hour - 8) * 80 + 40}px`,
+                                    top: `${(hour - 8) * 100 + 50}px`,
                                     height: '1px'
                                 }}
                             />
@@ -197,7 +197,7 @@ export default function DayCalendarView({
                                     {professionalAppointments.map(appointment => {
                                         const style = getAppointmentStyle(appointment, professionalIndex, totalProfessionals)
                                         const duration = Math.round((new Date(appointment.endTime).getTime() - new Date(appointment.startTime).getTime()) / (1000 * 60))
-                                        const height = (new Date(appointment.endTime).getTime() - new Date(appointment.startTime).getTime()) / (1000 * 60 * 60) * 80 // Convert to pixels
+                                        const height = (new Date(appointment.endTime).getTime() - new Date(appointment.startTime).getTime()) / (1000 * 60 * 60) * 100 // Convert to pixels
 
                                         return (
                                             <div

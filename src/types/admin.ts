@@ -34,6 +34,7 @@ export interface Appointment {
     clientPhone?: string
     notes?: string
     service: Service
+    services?: Service[] // Support for multiple services
     employee: Employee
 }
 

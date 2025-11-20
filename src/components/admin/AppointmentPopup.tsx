@@ -285,19 +285,51 @@ export default function AppointmentPopup({
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="bg-gray-50 rounded-xl p-4">
-                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Servicio</label>
+                                    <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Servicios</label>
                                     {isEditing ? (
-                                        <select
-                                            value={formData.serviceId}
-                                            onChange={(e) => setFormData({ ...formData, serviceId: e.target.value })}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium"
-                                        >
-                                            {services.map(service => (
-                                                <option key={service.id} value={service.id}>{service.name}</option>
-                                            ))}
-                                        </select>
+                                        <div className="space-y-2">
+                                            <select
+                                                value={formData.serviceId}
+                                                onChange={(e) => setFormData({ ...formData, serviceId: e.target.value })}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent bg-white text-gray-900 font-medium"
+                                            >
+                                                {services.map(service => (
+                                                    <option key={service.id} value={service.id}>{service.name}</option>
+                                                ))}
+                                            </select>
+                                            <p className="text-xs text-gray-500">Nota: Para múltiples servicios, edita desde la vista de calendario</p>
+                                        </div>
                                     ) : (
-                                        <p className="text-base font-semibold text-gray-900">{appointment.service.name}</p>
+                                        <div className="space-y-2">
+                                            {/* Show primary service */}
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                                                <p className="text-base font-semibold text-gray-900">{appointment.service.name}</p>
+                                                <span className="text-sm text-gray-500">({appointment.service.duration} min)</span>
+                                            </div>
+
+                                            {/* Show additional services if they exist */}
+                                            {appointment.services && appointment.services.length > 1 && (
+                                                <div className="ml-4 space-y-1">
+                                                    {appointment.services.slice(1).map((service, index) => (
+                                                        <div key={service.id} className="flex items-center gap-2">
+                                                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full"></div>
+                                                            <p className="text-sm text-gray-700">{service.name}</p>
+                                                            <span className="text-xs text-gray-500">({service.duration} min)</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Show total duration if multiple services */}
+                                            {appointment.services && appointment.services.length > 1 && (
+                                                <div className="mt-2 pt-2 border-t border-gray-200">
+                                                    <p className="text-sm font-medium text-gray-600">
+                                                        Duración total: {appointment.services.reduce((total, service) => total + service.duration, 0)} min
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
 

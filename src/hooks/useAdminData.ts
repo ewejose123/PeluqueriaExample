@@ -1,5 +1,5 @@
 // Custom hook for admin data management
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Employee, Service, Appointment, BookingSettings } from '@/types/admin'
 
 export function useAdminData() {
@@ -8,6 +8,7 @@ export function useAdminData() {
     const [appointments, setAppointments] = useState<Appointment[]>([])
     const [bookingSettings, setBookingSettings] = useState<BookingSettings | null>(null)
     const [loading, setLoading] = useState(false)
+    const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
     const fetchData = async () => {
         setLoading(true)
@@ -64,6 +65,19 @@ export function useAdminData() {
 
     useEffect(() => {
         fetchData()
+
+        // Set up automatic refresh every 10 minutes (600,000 ms)
+        intervalRef.current = setInterval(() => {
+            console.log('Auto-refreshing admin data...')
+            fetchData()
+        }, 10 * 60 * 1000)
+
+        // Cleanup interval on unmount
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current)
+            }
+        }
     }, [])
 
     return {
