@@ -22,7 +22,8 @@ export default function Navigation() {
         { name: 'Inicio', href: pathname === '/book' ? '/' : '#home' },
         { name: 'Servicios', href: pathname === '/book' ? '/#services' : '#services' },
         { name: 'Contacto', href: pathname === '/book' ? '/#contact' : '#contact' },
-        { name: 'Reservar', href: '/book' }
+        { name: 'Reservar', href: '/book' },
+        { name: 'Admin', href: '/admin', isButton: true } // quick access to admin view
     ]
 
     return (
@@ -55,7 +56,9 @@ export default function Navigation() {
                             <a
                                 key={item.name}
                                 href={item.href}
-                                className={`font-medium transition-colors duration-300 hover:text-amber-500 ${scrolled ? 'text-gray-700' : 'text-white'
+                                className={`${item.isButton
+                                    ? `px-4 py-2 rounded-full font-semibold text-white bg-amber-500 transition-colors duration-300 hover:bg-amber-600`
+                                    : `font-medium transition-colors duration-300 hover:text-amber-500 ${scrolled ? 'text-gray-700' : 'text-white'}`
                                     }`}
                             >
                                 {item.name}
@@ -89,9 +92,11 @@ export default function Navigation() {
                                 key={item.name}
                                 href={item.href}
                                 onClick={() => setIsOpen(false)}
-                                className={`block px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${scrolled
-                                    ? 'text-gray-700 hover:bg-gray-100'
-                                    : 'text-white hover:bg-white/10'
+                                className={`block px-4 py-2 rounded-lg font-medium transition-colors duration-300 ${item.isButton
+                                    ? 'bg-amber-500 text-white hover:bg-amber-600'
+                                    : scrolled
+                                        ? 'text-gray-700 hover:bg-gray-100'
+                                        : 'text-white hover:bg-white/10'
                                     }`}
                             >
                                 {item.name}
